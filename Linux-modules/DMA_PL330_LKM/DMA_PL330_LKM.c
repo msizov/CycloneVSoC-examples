@@ -417,21 +417,21 @@ static ssize_t sdramc_weight1_show(struct kobject *kobj,
 /**  Use these helper macros to define the name and access levels of the kobj_attributes
  *  The kobj_attribute has an attribute attr (name and mode), show and store function pointers
  */
-static struct kobj_attribute dma_buff_padd_attr = __ATTR(dma_buff_padd, 0666, dma_buff_padd_show, dma_buff_padd_store);
-static struct kobj_attribute use_acp_attr = __ATTR(use_acp, 0666, use_acp_show, use_acp_store);
-static struct kobj_attribute prepare_microcode_in_open_attr = __ATTR(prepare_microcode_in_open, 0666,
+static struct kobj_attribute dma_buff_padd_attr = __ATTR(dma_buff_padd, 0660, dma_buff_padd_show, dma_buff_padd_store);
+static struct kobj_attribute use_acp_attr = __ATTR(use_acp, 0660, use_acp_show, use_acp_store);
+static struct kobj_attribute prepare_microcode_in_open_attr = __ATTR(prepare_microcode_in_open, 0660,
   prepare_microcode_in_open_show, prepare_microcode_in_open_store);
-static struct kobj_attribute dma_transfer_size_attr = __ATTR(dma_transfer_size, 0666,
+static struct kobj_attribute dma_transfer_size_attr = __ATTR(dma_transfer_size, 0660,
   dma_transfer_size_show, dma_transfer_size_store);
-static struct kobj_attribute lockdown_cpu_attr = __ATTR(lockdown_cpu, 0666,
+static struct kobj_attribute lockdown_cpu_attr = __ATTR(lockdown_cpu, 0660,
   lockdown_cpu_show, lockdown_cpu_store);
-static struct kobj_attribute lockdown_acp_attr = __ATTR(lockdown_acp, 0666,
+static struct kobj_attribute lockdown_acp_attr = __ATTR(lockdown_acp, 0660,
   lockdown_acp_show, lockdown_acp_store);
-static struct kobj_attribute sdramc_priority_attr = __ATTR(sdramc_priority, 0666,
+static struct kobj_attribute sdramc_priority_attr = __ATTR(sdramc_priority, 0660,
   sdramc_priority_show, sdramc_priority_store);
-static struct kobj_attribute sdramc_weight0_attr = __ATTR(sdramc_weight0, 0666,
+static struct kobj_attribute sdramc_weight0_attr = __ATTR(sdramc_weight0, 0660,
   sdramc_weight0_show, sdramc_weight0_store);
-static struct kobj_attribute sdramc_weight1_attr = __ATTR(sdramc_weight1, 0666,
+static struct kobj_attribute sdramc_weight1_attr = __ATTR(sdramc_weight1, 0660,
   sdramc_weight1_show, sdramc_weight1_store);
 
 /**  The pl330_lkm_attrs[] is an array of attributes that is used to create the attribute group below.

@@ -60,7 +60,7 @@ static void* altidmap_vaddress;
 #define ALT_ACPIDMAP_ADDR altidmap_vaddress
 
 //-------------------------------------------------------//
-ALT_STATUS_CODE alt_acpidmap_iomap()
+ALT_STATUS_CODE alt_acpidmap_iomap(void)
 {
     altidmap_vaddress = ioremap(ACPIDMAP_HADDRESS, ACPIDMAP_HSIZE);
     if (altidmap_vaddress == NULL) 
@@ -75,7 +75,7 @@ ALT_STATUS_CODE alt_acpidmap_iomap()
     return ALT_E_SUCCESS;
 }
 
-ALT_STATUS_CODE alt_acpidmap_iounmap()
+ALT_STATUS_CODE alt_acpidmap_iounmap(void)
 {
   iounmap(altidmap_vaddress); //iounmap the RSTMGR
   printk(KERN_INFO "ACP ID MAPPER: iounmap success.\n");

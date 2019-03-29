@@ -8,15 +8,15 @@
 #include <stdint.h>
 
 //Constants to do mmap and get access to FPGA peripherals
-#define HPS_FPGA_BRIDGE_BASE 0xC0000000
+#define HPS_FPGA_BRIDGE_BASE 0xff200000 //0xC0000000
 #define HW_REGS_BASE ( HPS_FPGA_BRIDGE_BASE )
-#define HW_REGS_SPAN ( 0x04000000 )
+#define HW_REGS_SPAN ( 0x4000 ) //( 0x04000000 )
 #define HW_REGS_MASK ( HW_REGS_SPAN - 1 )
 #define ON_CHIP_MEMORY_BASE 0 //FPGA On-Chip RAM address relative to H2F bridge
 
 //MACROS TO CONTROL THE TRANSFER
 #define DMA_TRANSFER_SIZE 	32
-#define USE_ACP			1  //0 do not use acp, 1 use acp
+#define USE_ACP			0  //0 do not use acp, 1 use acp
 //DMA_BUFF_PADD:
 //physical address of the buffer used when reading and writing using dma driver
 //in this case we set 0xC0000000, the beginning of the HPS-FPGA BRIDGE
@@ -81,7 +81,7 @@ int main() {
     if (*ocr_ptr != (uint8_t)i)
     {
       printf ("Error when checking On-Chip RAM in Byte %d\n", i);
-      return 0;
+      //return 0;
     }
     ocr_ptr++;
   }
@@ -96,7 +96,7 @@ int main() {
     if (*ocr_ptr != 0)
     {
       printf ("Error when resetting On-Chip RAM in Byte %d\n", i);
-      return 0;
+      //return 0;
     }
     ocr_ptr++;
   }
