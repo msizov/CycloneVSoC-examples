@@ -18,6 +18,7 @@
 #include <linux/kobject.h>	// Using kobjects for the sysfs bindings
 #include <linux/device.h>   // Header to support the kernel Driver Model
 #include <linux/fs.h>       // Header for the Linux file system support
+#include <linux/delay.h>    // usleep-range
 #include <asm/uaccess.h>    // Required for the copy to user function
 
 #include "hwlib_socal_linux.h"
@@ -570,6 +571,7 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
   {
     while((status == ALT_E_SUCCESS) && (channel_state != ALT_DMA_CHANNEL_STATE_STOPPED))
       {
+	usleep_range(20, 50);
 	status = alt_dma_channel_state_get(Dma_Channel, &channel_state);
 	if(channel_state == ALT_DMA_CHANNEL_STATE_FAULTING)
 	{
@@ -677,6 +679,7 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
   {
     while((status == ALT_E_SUCCESS) && (channel_state != ALT_DMA_CHANNEL_STATE_STOPPED))
     {
+      usleep_range(20, 50);
     	status = alt_dma_channel_state_get(Dma_Channel, &channel_state);
     	if(channel_state == ALT_DMA_CHANNEL_STATE_FAULTING)
     	{
