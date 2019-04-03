@@ -18,6 +18,7 @@
 #include <linux/kobject.h>	// Using kobjects for the sysfs bindings
 #include <linux/device.h>   // Header to support the kernel Driver Model
 #include <linux/fs.h>       // Header for the Linux file system support
+#include <linux/delay.h>    // usleep-range
 #include <asm/uaccess.h>    // Required for the copy to user function
 
 #include "hwlib_socal_linux.h"
@@ -68,6 +69,7 @@ static ALT_DMA_CHANNEL_t Dma_Channel; //dma channel to be used in transfers
 
 //---------VARIABLES TO EXPORT USING SYSFS-----------------//
 static int use_acp = 1; //to use acp for DMA transfers
+static int increment_addr = 1; //to use incrementing addr for DMA transfers
 static int prepare_microcode_in_open = 0;//microcode program is prepared when opening char driver
 //when prepare_microcode_in_open the following vars are used to prepare DMA microcodes in open() func
 static void* dma_buff_padd = (void*) 0xC0000000;//physical address of buff to use in write and read from application
@@ -230,6 +232,19 @@ static ssize_t use_acp_show(struct kobject *kobj,
   struct kobj_attribute *attr, char *buf)
 {
    return sprintf(buf, "%d\n", use_acp);
+}
+
+static ssize_t increment_addr_store(struct kobject *kobj,
+  struct kobj_attribute *attr, const char *buf, size_t count)
+{
+  sscanf(buf, "%du", &increment_addr);
+  return count;
+}
+
+static ssize_t increment_addr_show(struct kobject *kobj,
+  struct kobj_attribute *attr, char *buf)
+{
+   return sprintf(buf, "%d\n", increment_addr);
 }
 
 static ssize_t prepare_microcode_in_open_store(struct kobject *kobj,
@@ -419,6 +434,7 @@ static ssize_t sdramc_weight1_show(struct kobject *kobj,
  */
 static struct kobj_attribute dma_buff_padd_attr = __ATTR(dma_buff_padd, 0660, dma_buff_padd_show, dma_buff_padd_store);
 static struct kobj_attribute use_acp_attr = __ATTR(use_acp, 0660, use_acp_show, use_acp_store);
+static struct kobj_attribute increment_addr_attr = __ATTR(increment_addr, 0660, increment_addr_show, increment_addr_store);
 static struct kobj_attribute prepare_microcode_in_open_attr = __ATTR(prepare_microcode_in_open, 0660,
   prepare_microcode_in_open_show, prepare_microcode_in_open_store);
 static struct kobj_attribute dma_transfer_size_attr = __ATTR(dma_transfer_size, 0660,
@@ -440,6 +456,7 @@ static struct kobj_attribute sdramc_weight1_attr = __ATTR(sdramc_weight1, 0660,
 static struct attribute *pl330_lkm_attrs[] = {
       &dma_buff_padd_attr.attr,
       &use_acp_attr.attr,
+      &increment_addr_attr.attr,
       &prepare_microcode_in_open_attr.attr,
       &dma_transfer_size_attr.attr,
       &lockdown_cpu_attr.attr,
@@ -552,15 +569,30 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
     else //use acp
       dma_transfer_dst_h = (void*)((char*)cached_mem_h + 0x80000000);
 
-    status = alt_dma_memory_to_memory(
-  	Dma_Channel,
-  	(ALT_DMA_PROGRAM_t*) DMA_PROG_RD_V,
-  	(ALT_DMA_PROGRAM_t*) DMA_PROG_RD_H,
-  	dma_transfer_dst_h,
-  	dma_transfer_src_h,
-  	len,
-  	false,
-  	(ALT_DMA_EVENT_t)0);
+    if (increment_addr == 1) {
+        status = alt_dma_memory_to_memory(
+            Dma_Channel,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_RD_V,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_RD_H,
+            dma_transfer_dst_h,
+            dma_transfer_src_h,
+            len,
+            false,
+            (ALT_DMA_EVENT_t)0);
+    } else {
+        status = alt_dma_memory_to_memory(
+            Dma_Channel,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_RD_V,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_RD_H,
+            dma_transfer_dst_h,
+            dma_transfer_src_h,
+            len,
+            false,
+            (ALT_DMA_EVENT_t)0,
+            false,
+            true);
+    }
+
   }
 
   //Wait for the transfer to be finished
@@ -570,6 +602,7 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
   {
     while((status == ALT_E_SUCCESS) && (channel_state != ALT_DMA_CHANNEL_STATE_STOPPED))
       {
+        usleep_range(20, 50);
 	status = alt_dma_channel_state_get(Dma_Channel, &channel_state);
 	if(channel_state == ALT_DMA_CHANNEL_STATE_FAULTING)
 	{
@@ -659,15 +692,30 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
     else //use acp
       dma_transfer_src_h = (void*)((char*)cached_mem_h + 0x80000000);
 
-    status = alt_dma_memory_to_memory(
-    	Dma_Channel,
-    	(ALT_DMA_PROGRAM_t*) DMA_PROG_WR_V,
-    	(ALT_DMA_PROGRAM_t*) DMA_PROG_WR_H,
-    	dma_transfer_dst_h,
-    	dma_transfer_src_h,
-    	len,
-    	false,
-    	(ALT_DMA_EVENT_t)0);
+    if (increment_addr == 1) {
+        status = alt_dma_memory_to_memory(
+            Dma_Channel,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_WR_V,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_WR_H,
+            dma_transfer_dst_h,
+            dma_transfer_src_h,
+            len,
+            false,
+            (ALT_DMA_EVENT_t)0);
+    } else {
+        status = alt_dma_memory_to_memory(
+            Dma_Channel,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_WR_V,
+            (ALT_DMA_PROGRAM_t*) DMA_PROG_WR_H,
+            dma_transfer_dst_h,
+            dma_transfer_src_h,
+            len,
+            false,
+            (ALT_DMA_EVENT_t)0,
+            true,
+            false);
+    }
+
   }
 
   //Wait for the transfer to be finished
@@ -677,6 +725,7 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
   {
     while((status == ALT_E_SUCCESS) && (channel_state != ALT_DMA_CHANNEL_STATE_STOPPED))
     {
+        usleep_range(20, 50);
     	status = alt_dma_channel_state_get(Dma_Channel, &channel_state);
     	if(channel_state == ALT_DMA_CHANNEL_STATE_FAULTING)
     	{

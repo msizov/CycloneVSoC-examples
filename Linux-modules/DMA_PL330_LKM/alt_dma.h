@@ -771,7 +771,7 @@ ALT_STATUS_CODE alt_dma_int_clear(ALT_DMA_EVENT_t irq_num);
  *                              used) is invalid, or the memory regions
  *                              specified are overlapping.
  */
-ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
+/*ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
                                          ALT_DMA_PROGRAM_t * programv, //virtual address of DMAC microcode program (to be used in kernel space)
 					 ALT_DMA_PROGRAM_t * programh, //hardware address, to be used by the DMAC to find the program
                                          void * dest,
@@ -779,6 +779,17 @@ ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
                                          size_t size,
                                          bool send_evt,
                                          ALT_DMA_EVENT_t evt);
+*/
+ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
+                                         ALT_DMA_PROGRAM_t * programv, //virtual address of DMAC microcode program (to be used in kernel space)
+                                         ALT_DMA_PROGRAM_t * programh, //hardware address, to be used by the DMAC to find the program
+                                         void * dest,
+                                         const void * src,
+                                         size_t size,
+                                         bool send_evt,
+                                         ALT_DMA_EVENT_t evt,
+                                         bool increment_source_addr = true,
+                                         bool increment_destination_addr = true);
 
 /*!
  * Prepares a program to asynchronously copy the specified memory from the

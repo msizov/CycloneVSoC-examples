@@ -1238,8 +1238,12 @@ ALT_STATUS_CODE alt_dma_channel_fault_status_get(ALT_DMA_CHANNEL_t channel,
 static ALT_STATUS_CODE alt_dma_memory_to_memory_segment(ALT_DMA_PROGRAM_t * program,
 							uintptr_t segdstpa,
                                                         uintptr_t segsrcpa,
-                                                        size_t segsize)
+                                                        size_t segsize,
+                                                        bool increment_source_address = true,
+                                                        bool increment_destination_address = true)
 {
+    uint32_t INCREMENT_SRC_ADDR = (increment_source_address) ? ALT_DMA_CCR_OPT_SAI : ALT_DMA_CCR_OPT_SAF ;
+    uint32_t INCREMENT_DST_ADDR = (increment_destination_address) ? ALT_DMA_CCR_OPT_DAI : ALT_DMA_CCR_OPT_DAF ;
     uint32_t burstcount;
     bool correction;
     size_t sizeleft = segsize;
@@ -1283,13 +1287,13 @@ static ALT_STATUS_CODE alt_dma_memory_to_memory_segment(ALT_DMA_PROGRAM_t * prog
             status = alt_dma_program_DMAMOV(program, ALT_DMA_PROGRAM_REG_CCR,
                                             (   ((aligncount - 1) << 4) // SB //
                                               | ALT_DMA_CCR_OPT_SS8
-                                              | ALT_DMA_CCR_OPT_SA_DEFAULT
+                                              | INCREMENT_SRC_ADDR
                                               | ALT_DMA_CCR_OPT_SP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_SC(7)
                                               | ALT_DMA_RC_ON
                                               | ((aligncount - 1) << 18) // DB //
                                               | ALT_DMA_CCR_OPT_DS8
-                                              | ALT_DMA_CCR_OPT_DA_DEFAULT
+                                              | INCREMENT_DST_ADDR
                                               | ALT_DMA_CCR_OPT_DP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_DC(7)
                                               | ALT_DMA_WC_ON
@@ -1349,13 +1353,13 @@ static ALT_STATUS_CODE alt_dma_memory_to_memory_segment(ALT_DMA_PROGRAM_t * prog
             status = alt_dma_program_DMAMOV(program, ALT_DMA_PROGRAM_REG_CCR,
                                             (   ALT_DMA_CCR_OPT_SB16
                                               | ALT_DMA_CCR_OPT_SS64
-                                              | ALT_DMA_CCR_OPT_SA_DEFAULT
+                                              | INCREMENT_SRC_ADDR
                                               | ALT_DMA_CCR_OPT_SP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_SC(7)
                                               | ALT_DMA_RC_ON
                                               | ALT_DMA_CCR_OPT_DB16
                                               | ALT_DMA_CCR_OPT_DS64
-                                              | ALT_DMA_CCR_OPT_DA_DEFAULT
+                                              | INCREMENT_DST_ADDR
                                               | ALT_DMA_CCR_OPT_DP_DEFAULT
                                              // | ALT_DMA_CCR_OPT_DC(7)
                                               | ALT_DMA_WC_ON
@@ -1418,13 +1422,13 @@ static ALT_STATUS_CODE alt_dma_memory_to_memory_segment(ALT_DMA_PROGRAM_t * prog
             status = alt_dma_program_DMAMOV(program, ALT_DMA_PROGRAM_REG_CCR,
                                             (   ((burstcount - 1) << 4) // SB //
                                               | ALT_DMA_CCR_OPT_SS64
-                                              | ALT_DMA_CCR_OPT_SA_DEFAULT
+                                              | INCREMENT_SRC_ADDR
                                               | ALT_DMA_CCR_OPT_SP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_SC(7)
                                               | ALT_DMA_RC_ON
                                               | ((burstcount - 1) << 18) // DB //
                                               | ALT_DMA_CCR_OPT_DS64
-                                              | ALT_DMA_CCR_OPT_DA_DEFAULT
+                                              | INCREMENT_DST_ADDR
                                               | ALT_DMA_CCR_OPT_DP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_DC(7)
                                               | ALT_DMA_WC_ON
@@ -1468,13 +1472,13 @@ static ALT_STATUS_CODE alt_dma_memory_to_memory_segment(ALT_DMA_PROGRAM_t * prog
             status = alt_dma_program_DMAMOV(program, ALT_DMA_PROGRAM_REG_CCR,
                                             (   ((correctcount - 1) << 4) // SB //
                                               | ALT_DMA_CCR_OPT_SS8
-                                              | ALT_DMA_CCR_OPT_SA_DEFAULT
+                                              | INCREMENT_SRC_ADDR
                                               | ALT_DMA_CCR_OPT_SP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_SC(7)
                                               | ALT_DMA_RC_ON
                                               | ((correctcount - 1) << 18) // DB //
                                               | ALT_DMA_CCR_OPT_DS8
-                                              | ALT_DMA_CCR_OPT_DA_DEFAULT
+                                              | INCREMENT_DST_ADDR
                                               | ALT_DMA_CCR_OPT_DP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_DC(7)
                                               | ALT_DMA_WC_ON
@@ -1509,13 +1513,13 @@ static ALT_STATUS_CODE alt_dma_memory_to_memory_segment(ALT_DMA_PROGRAM_t * prog
             status = alt_dma_program_DMAMOV(program, ALT_DMA_PROGRAM_REG_CCR,
                                             (   ((sizeleft - 1) << 4) // SB //
                                               | ALT_DMA_CCR_OPT_SS8
-                                              | ALT_DMA_CCR_OPT_SA_DEFAULT
+                                              | INCREMENT_SRC_ADDR
                                               | ALT_DMA_CCR_OPT_SP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_SC(7)
                                               | ALT_DMA_RC_ON
                                               | ((sizeleft - 1) << 18) // DB //
                                               | ALT_DMA_CCR_OPT_DS8
-                                              | ALT_DMA_CCR_OPT_DA_DEFAULT
+                                              | INCREMENT_DST_ADDR
                                               | ALT_DMA_CCR_OPT_DP_DEFAULT
                                               //| ALT_DMA_CCR_OPT_DC(7)
                                               | ALT_DMA_WC_ON
@@ -1543,7 +1547,9 @@ ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
                                          const void * src,
                                          size_t size,
                                          bool send_evt,
-                                         ALT_DMA_EVENT_t evt)
+                                         ALT_DMA_EVENT_t evt,
+                                         bool increment_source_address,
+                                         bool increment_destination_address)
 {
     ALT_STATUS_CODE status = ALT_E_SUCCESS;
 
@@ -1661,7 +1667,7 @@ ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
                 //We did investigations in the baremetal programs and they transfer all at once always
                 //Even when transferring 2MB. Therefore we know the transfer can be done at once.
                 //If we comment all this code we delete the dependency with mmu files.
-                status = alt_dma_memory_to_memory_segment(programv, (uintptr_t) dst, (uintptr_t) src, size);
+                status = alt_dma_memory_to_memory_segment(programv, (uintptr_t) dst, (uintptr_t) src, size, increment_source_address, increment_destination_address);
                 ///////------------------------------------------------------///
  /*           }
 
@@ -1741,6 +1747,7 @@ ALT_STATUS_CODE alt_dma_memory_to_memory(ALT_DMA_CHANNEL_t channel,
     // Execute the program on the given channel. //
     return alt_dma_channel_exec(channel, programh);
 }
+
 
 ALT_STATUS_CODE alt_dma_memory_to_memory_only_prepare_program(ALT_DMA_CHANNEL_t channel,
                                          ALT_DMA_PROGRAM_t * programv, //virtual address of DMAC microcode program (to be used in kernel space)
