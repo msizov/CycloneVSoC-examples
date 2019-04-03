@@ -15,8 +15,9 @@
 #define ON_CHIP_MEMORY_BASE 0 //FPGA On-Chip RAM address relative to H2F bridge
 
 //MACROS TO CONTROL THE TRANSFER
-#define DMA_TRANSFER_SIZE 	32
+#define DMA_TRANSFER_SIZE 	1000
 #define USE_ACP			0  //0 do not use acp, 1 use acp
+#define INCREMENT_ADDR          0
 //DMA_BUFF_PADD:
 //physical address of the buffer used when reading and writing using dma driver
 //in this case we set 0xC0000000, the beginning of the HPS-FPGA BRIDGE
@@ -127,6 +128,17 @@ int main() {
   write (f_sysfs, &d, 14);
   close(f_sysfs);
   
+  sprintf(d, "%d", (int) INCREMENT_ADDR);
+  f_sysfs = open("/sys/dma_pl330/pl330_lkm_attrs/increment_addr", O_WRONLY);
+  if (f_sysfs < 0){
+    printf("Failed to open sysfs for increment_addr.\n");
+    return errno;
+  }
+  write (f_sysfs, &d, 14);
+  close(f_sysfs);
+  
+
+
   sprintf(d, "%d", (int) PREPARE_MICROCODE_WHEN_OPEN);
   f_sysfs = open("/sys/dma_pl330/pl330_lkm_attrs/prepare_microcode_in_open", 
     O_WRONLY);
@@ -205,6 +217,8 @@ int main() {
     perror("Failed to open /dev/dma_pl330 on read...");
     return errno;
   }
+  i = 0;
+  for (i = 0; i < 1000000 ; i++)
   ret = read(f, buffer, DMA_TRANSFER_SIZE);
   if (ret < 0){
     perror("Failed to read the message from the device.");

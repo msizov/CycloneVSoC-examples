@@ -578,9 +578,10 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
             dma_transfer_src_h,
             len,
             false,
-            (ALT_DMA_EVENT_t)0);
+            (ALT_DMA_EVENT_t)0
+					 );
     } else {
-        status = alt_dma_memory_to_memory(
+        status = alt_dma_memory_to_memory_increment(
             Dma_Channel,
             (ALT_DMA_PROGRAM_t*) DMA_PROG_RD_V,
             (ALT_DMA_PROGRAM_t*) DMA_PROG_RD_H,
@@ -703,7 +704,7 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
             false,
             (ALT_DMA_EVENT_t)0);
     } else {
-        status = alt_dma_memory_to_memory(
+        status = alt_dma_memory_to_memory_increment(
             Dma_Channel,
             (ALT_DMA_PROGRAM_t*) DMA_PROG_WR_V,
             (ALT_DMA_PROGRAM_t*) DMA_PROG_WR_H,
